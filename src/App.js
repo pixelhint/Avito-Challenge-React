@@ -11,27 +11,19 @@ import data from './data/dataFeed';
 class App extends Component {
 	constructor (props){
 		super(props);
+		const itemsToShow = 10;
 		this.state = {
 			// Pagination Settings
-			perPageFilter : 10,
+			perPageFilter : itemsToShow,
 			pageOffsetStart: 0,
-			pageOffsetEnd: 0,
-
+			pageOffsetEnd: itemsToShow,
 			// Filters
 			userLikesFilter : false,
 			userLikesNbFilter : 10,
 			textFilter : '',
-
 			// Data Obj
 			data : data.data
 		}
-	}
-
-	componentDidMount (){
-		this.setState({
-			pageOffsetStart: 0,
-			pageOffsetEnd: this.state.perPageFilter
-		});
 	}
 
 	// Set previous page state
