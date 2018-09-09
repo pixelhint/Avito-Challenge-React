@@ -11,7 +11,6 @@ const Form = (props) => {
 		<div className="feed-item feed-filter">
 			<div className="feed-filter-item">
 				<input type="text" name="txtFilter" placeholder="Looking for something?" className="feed-filter-input" onChange={setTextFilter}/>
-				<button className="feed-filter-input">Filter</button>
 			</div>
 			<div className="feed-filter-item">
 				<label htmlFor="items_to_show" className="feed-filter-input">Items to show: </label>
