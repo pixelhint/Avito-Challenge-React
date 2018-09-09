@@ -19,33 +19,11 @@ class App extends Component {
 			pageOffsetEnd: itemsToShow,
 			// Filters
 			userLikesFilter : false,
-			userLikesNbFilter : 10,
+			userLikesNbFilter : 2000,
 			textFilter : '',
 			// Data Obj
 			data : data.data
 		}
-	}
-
-	// Set previous page state
-	prevPage = () => {
-		if( this.state.pageOffsetStart <= 0 ) return false;
-		this.setState((prevState) => {
-			return {
-				pageOffsetStart : prevState.pageOffsetStart - prevState.perPageFilter,
-				pageOffsetEnd : prevState.pageOffsetEnd - prevState.perPageFilter,
-			};
-		});
-	}
-
-	// Set next page state
-	nextPage = () => {
-		if( this.state.pageOffsetEnd >= this.state.data.length ) return false;
-		this.setState((prevState) => {
-			return {
-				pageOffsetStart : prevState.pageOffsetStart + prevState.perPageFilter,
-				pageOffsetEnd : prevState.pageOffsetEnd + prevState.perPageFilter,
-			};
-		});
 	}
 
 	// Set number of items to show filter
@@ -66,31 +44,43 @@ class App extends Component {
 		});
 	}
 
-	// Filter feed by descrption
-	filterFeedByDesc = () => {
-		let filteredFeedByDesc = data.data.filter((item)=>{
-			return ( item.description !== null && item.description.toLowerCase().includes(this.state.textFilter));
-		});
-		this.setState({ data:filteredFeedByDesc });
+	// Sort feed by user likes
+	setUserLikesFilter = (e) => {
+		if( e.target.checked ){
+			this.setState({ userLikesFilter : e.target.checked });
+		}else{
+			this.setState({ userLikesFilter : false });
+		}
 	}
 
-	// Sort feed by user likes
-	sortFeedByUserLikes = (e) => {
-		if( e.target.checked ){
-			let filteredFeedByUserLikes = data.data.filter((item)=>{
-				const likes = item.user.metadata.connections.likes.total;
-				return ( likes!=null && likes > this.state.userLikesNbFilter );
-			});
-			this.setState({
-				userLikesFilter : e.target.checked,
-				data : filteredFeedByUserLikes
-			});
-		}else{
-			this.setState({
-				userLikesFilter : false,
-				data : data.data
-			});
-		}
+	// Set previous page state
+	prevPage = () => {
+		if( this.state.pageOffsetStart <= 0 ) return false;
+		this.setState((prevState) => {
+			return {
+				pageOffsetStart : prevState.pageOffsetStart - prevState.perPageFilter,
+				pageOffsetEnd : prevState.pageOffsetEnd - prevState.perPageFilter,
+			};
+		});
+	}
+
+	// Set next page state
+	nextPage = () => {
+		if( this.state.pageOffsetEnd >= this.filterFeed(this.state.data).length ) return false;
+		this.setState((prevState) => {
+			return {
+				pageOffsetStart : prevState.pageOffsetStart + prevState.perPageFilter,
+				pageOffsetEnd : prevState.pageOffsetEnd + prevState.perPageFilter,
+			};
+		});
+	}
+
+	filterFeed = (feed) => {
+		return feed.filter((item)=>{
+			const txtFilter = (item.description !== null && item.description.toLowerCase().includes(this.state.textFilter));
+			const likesFilter = (this.state.userLikesFilter ? item.user.metadata.connections.likes.total!=null && item.user.metadata.connections.likes.total > this.state.userLikesNbFilter : true);
+			return txtFilter && likesFilter;
+		});
 	}
 
 	render() {
@@ -99,18 +89,17 @@ class App extends Component {
 				<Form
 					setTextFilter={this.setTextFilter}
 					setPerPageFilter={this.setPerPageFilter}
-					filterFeedByDesc={this.filterFeedByDesc}
-					sortFeedByUserLikes={this.sortFeedByUserLikes}
+					setUserLikesFilter={this.setUserLikesFilter}
 				/>
 				<Feed
 					pageOffsetStart={this.state.pageOffsetStart}
 					pageOffsetEnd={this.state.pageOffsetEnd}
-					data={this.state.data}
+					data={this.filterFeed(this.state.data)}
 				/>
 				<Pagination 
 					pageOffsetStart={this.state.pageOffsetStart}
 					pageOffsetEnd={this.state.pageOffsetEnd}
-					dataCount={this.state.data.length}
+					dataCount={this.filterFeed(this.state.data).length}
 					prevPage={this.prevPage}
 					nextPage={this.nextPage}
 				/>
